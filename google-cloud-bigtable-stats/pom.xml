@@ -257,8 +257,11 @@
     <profiles>
         <profile>
             <id>test</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
-                <bigtable.test-monitoring-endpoint/>
+                <bigtable.test-monitoring-endpoint>test-monitoring.sandbox.googleapis.com:443</bigtable.test-monitoring-endpoint>
             </properties>
         </profile>
     </profiles>
