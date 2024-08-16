@@ -145,6 +145,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -157,6 +158,7 @@ import io.opentelemetry.api.common.Attributes;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -269,11 +271,33 @@ public class EnhancedBigtableStub implements AutoCloseable {
             : null;
 
     OpenTelemetry openTelemetry = null;
+    GrpcOpenTelemetry grpcOpenTelemetry = null;
     try {
       // We don't want client side metrics to crash the client, so catch any exception when getting
       // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
+      // Ideally this instance is shared across channels
+      GrpcOpenTelemetry grpcOpenTelemetry = GrpcOpenTelemetry.newBuilder()
+          .sdk(openTelemetry)
+          .enableMetrics(Arrays.asList(
+              "grpc.lb.wrr.rr_fallback",
+              "grpc.lb.wrr.endpoint_weight_not_yet_usable",
+              "grpc.lb.wrr.endpoint_weight_stale",
+              "grpc.lb.wrr.endpoint_weights",
+              "grpc.lb.rls.cache_entries",
+              "grpc.lb.rls.cache_size",
+              "grpc.lb.rls.default_target_picks",
+              "grpc.lb.rls.target_picks",
+              "grpc.lb.rls.failed_picks",
+              // These don't exist yet, but you'll have them in a later release
+              "grpc.xds_client.connected",
+              "grpc.xds_client.server_failure",
+              "grpc.xds_client.resource_updates_valid",
+              "grpc.xds_client.resource_updates_invalid",
+              "grpc.xds_client.resources"))
+          .build();
+
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -285,6 +309,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
               openTelemetry, createBuiltinAttributes(settings));
       ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
           transportProvider.getChannelConfigurator();
+
       transportProvider.setChannelConfigurator(
           managedChannelBuilder -> {
             if (settings.getEnableRoutingCookie()) {
@@ -296,8 +321,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
             if (oldChannelConfigurator != null) {
               managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
             }
+            grpcOpenTelemetry.configureChannelBuilder(managedChannelBuilder);
+
             return managedChannelBuilder;
           });
+
     } else {
       errorCountPerConnectionMetricTracker = null;
     }
@@ -318,6 +346,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     if (transportProvider != null) {
       builder.setTransportChannelProvider(transportProvider.build());
     }
+
 
     ClientContext clientContext = ClientContext.create(builder.build());
     if (errorCountPerConnectionMetricTracker != null) {
@@ -349,6 +378,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
             ? ((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider())
             : null;
+
     ImmutableMap.Builder<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
             .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(projectId))
