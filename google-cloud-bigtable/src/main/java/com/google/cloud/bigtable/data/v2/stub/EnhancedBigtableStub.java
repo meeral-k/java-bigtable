@@ -278,7 +278,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       openTelemetry =
           getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
       // Ideally this instance is shared across channels
-      GrpcOpenTelemetry grpcOpenTelemetry = GrpcOpenTelemetry.newBuilder()
+      grpcOpenTelemetry = GrpcOpenTelemetry.newBuilder()
           .sdk(openTelemetry)
           .enableMetrics(Arrays.asList(
               "grpc.lb.wrr.rr_fallback",
