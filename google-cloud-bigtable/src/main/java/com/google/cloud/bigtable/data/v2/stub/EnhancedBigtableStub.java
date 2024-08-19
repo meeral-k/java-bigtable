@@ -310,6 +310,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
           transportProvider.getChannelConfigurator();
 
+      GrpcOpenTelemetry finalGrpcOpenTelemetry = grpcOpenTelemetry;
       transportProvider.setChannelConfigurator(
           managedChannelBuilder -> {
             if (settings.getEnableRoutingCookie()) {
@@ -321,7 +322,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             if (oldChannelConfigurator != null) {
               managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
             }
-            grpcOpenTelemetry.configureChannelBuilder(managedChannelBuilder);
+            finalGrpcOpenTelemetry.configureChannelBuilder(managedChannelBuilder);
 
             return managedChannelBuilder;
           });
