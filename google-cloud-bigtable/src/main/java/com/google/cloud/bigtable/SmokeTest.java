@@ -19,14 +19,19 @@ import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.data.v2.*;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
+import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class SmokeTest {
 
   public static void main(String[] args) {
     String projectId = "google.com:cloud-bigtable-dev"; // my-gcp-project-id
-    String instanceId = "mk-test-1"; // my-bigtable-instance-id
-    String tableId = "mk-table-1"; // my-bigtable-table-id
+    String instanceId = "meeralk-yscb-dp"; // my-bigtable-instance-id
+    String tableId = "usertable-dp-td"; // my-bigtable-table-id
 
     System.out.println("System property directpath-data-endpoint: " + System.getProperty("bigtable.directpath-data-endpoint"));
     quickstart(projectId, instanceId, tableId);
@@ -34,13 +39,22 @@ public class SmokeTest {
 
   public static void quickstart(String projectId, String instanceId, String tableId) {
     BigtableDataSettings settings =
-        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
+        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(System.getProperty("bigtable.instance")).build();
 
     // Initialize client that will be used to send requests. This client only needs to be created
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings)) {
+      RowMutation rowMutation = RowMutation.create(tableId, String.valueOf(UUID.randomUUID()))
+          .setCell("cf", "q", "myVal")
+          .setCell("cf", "q2", "myVal2")
+          .setCell("cf", "q3", "myVal3")
+          .setCell("cf", "q4", 0x12345678);
+      System.out.println("Create a single row");
+      dataClient.mutateRowAsync(rowMutation).get(1, TimeUnit.MINUTES);
+
       System.out.println("\nReading a single row by row key");
+
       Row row = dataClient.readRow(TableId.of(tableId), "r1");
       System.out.println("Row: " + row.getKey().toStringUtf8());
       for (RowCell cell : row.getCells()) {

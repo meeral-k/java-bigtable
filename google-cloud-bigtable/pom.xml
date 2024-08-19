@@ -562,6 +562,10 @@
                   <key>bigtable.connection-mode</key>
                   <value>REQUIRE_DIRECT_PATH</value>
                 </systemProperty>
+                <systemProperty>
+                  <key>bigtable.test-monitoring-endpoint</key>
+                  <value>test-monitoring.sandbox.googleapis.com:443</value>
+                </systemProperty>
               </systemProperties>
               <environmentVariables>
                 <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>
