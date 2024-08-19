@@ -21,6 +21,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -46,18 +47,20 @@ public class SmokeTest {
     try {
       StackdriverTraceExporter.createAndRegister(
           StackdriverTraceConfiguration.builder()
-              .setProjectId("YOUR_PROJECT_ID")
+              .setProjectId(projectId)
               .build());
     } catch(Exception exception) {
       System.err.println("failed to setup tracing.");
     }
-    BigtableDataSettings settings =
-        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
+    BigtableDataSettings.Builder settings =
+        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
+    settings.stubSettings().setEndpoint(System.getProperty("bigtable.directpath-data-endpoint"));
+
 
     // Initialize client that will be used to send requests. This client only needs to be created
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
-    try (BigtableDataClient dataClient = BigtableDataClient.create(settings)) {
+    try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
       while(true) {
         String rowKey = String.valueOf(UUID.randomUUID());
         RowMutation rowMutation = RowMutation.create(tableId, rowKey)
