@@ -30,16 +30,18 @@ public class SmokeTest {
 
   public static void main(String[] args) {
     String projectId = "google.com:cloud-bigtable-dev"; // my-gcp-project-id
-    String instanceId = "meeralk-yscb-dp"; // my-bigtable-instance-id
-    String tableId = "usertable-dp-td"; // my-bigtable-table-id
+    String instanceId = System.getProperty("bigtable.instance"); // my-bigtable-instance-id
+    String tableId =System.getProperty("bigtable.table"); // my-bigtable-table-id
 
     System.out.println("System property directpath-data-endpoint: " + System.getProperty("bigtable.directpath-data-endpoint"));
+    System.out.println("System property instance id: " +instanceId);
+    System.out.println("System property table id: " + tableId);
     quickstart(projectId, instanceId, tableId);
   }
 
   public static void quickstart(String projectId, String instanceId, String tableId) {
     BigtableDataSettings settings =
-        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(System.getProperty("bigtable.instance")).build();
+        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
 
     // Initialize client that will be used to send requests. This client only needs to be created
     // once, and can be reused for multiple requests. After completing all of your requests, call
