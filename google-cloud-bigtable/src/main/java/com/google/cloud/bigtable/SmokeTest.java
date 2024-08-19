@@ -47,27 +47,29 @@ public class SmokeTest {
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings)) {
-      RowMutation rowMutation = RowMutation.create(tableId, String.valueOf(UUID.randomUUID()))
-          .setCell("cf", "q", "myVal")
-          .setCell("cf", "q2", "myVal2")
-          .setCell("cf", "q3", "myVal3")
-          .setCell("cf", "q4", 0x12345678);
-      System.out.println("Create a single row");
-      dataClient.mutateRowAsync(rowMutation).get(1, TimeUnit.MINUTES);
+      while(true) {
+        String rowKey = String.valueOf(UUID.randomUUID());
+        RowMutation rowMutation = RowMutation.create(tableId, rowKey)
+            .setCell("cf", "q", "myVal")
+            .setCell("cf", "q2", "myVal2")
+            .setCell("cf", "q3", "myVal3")
+            .setCell("cf", "q4", 0x12345678);
+        System.out.println("Create a single row");
+        dataClient.mutateRowAsync(rowMutation).get(1, TimeUnit.MINUTES);
+        System.out.println("\nReading a single row by row key");
 
-      System.out.println("\nReading a single row by row key");
-
-      Row row = dataClient.readRow(TableId.of(tableId), "r1");
-      System.out.println("Row: " + row.getKey().toStringUtf8());
-      for (RowCell cell : row.getCells()) {
-        System.out.printf(
-            "Family: %s    Qualifier: %s    Value: %s%n",
-            cell.getFamily(), cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8());
+        Row row = dataClient.readRow(TableId.of(tableId), rowKey);
+        System.out.println("Row: " + row.getKey().toStringUtf8());
+        for (RowCell cell : row.getCells()) {
+          System.out.printf(
+              "Family: %s    Qualifier: %s    Value: %s%n",
+              cell.getFamily(), cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8());
+        }
       }
-    } catch (NotFoundException e) {
-      System.err.println("Failed to read from a non-existent table: " + e.getMessage());
-    } catch (Exception e) {
-      System.out.println("Error during quickstart: \n" + e.toString());
-    }
-  }
+      } catch (NotFoundException e) {
+        System.err.println("Failed to read from a non-existent table: " + e.getMessage());
+      } catch (Exception e) {
+        System.out.println("Error during quickstart: \n" + e.toString());
+      }
+      }
 }

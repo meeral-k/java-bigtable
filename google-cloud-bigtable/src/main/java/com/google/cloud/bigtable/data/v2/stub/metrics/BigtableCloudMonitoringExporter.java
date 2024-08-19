@@ -133,7 +133,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+    settingsBuilder.setEndpoint("test-monitoring.googleapis.com:443");
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
