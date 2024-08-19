@@ -451,8 +451,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
           APP_PROFILE_KEY,
           settings.getAppProfileId(),
           CLIENT_NAME_KEY,
-          "bigtable-java/" + Version.VERSION,
-          DIRECTPATH_ENABLED_KEY, String.valueOf(((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider()).canUseDirectPath())
+          "bigtable-java/" + Version.VERSION//,
+          //DIRECTPATH_ENABLED_KEY, String.valueOf(((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider()).canUseDirectPath())
       );
     }
     return Attributes.of(

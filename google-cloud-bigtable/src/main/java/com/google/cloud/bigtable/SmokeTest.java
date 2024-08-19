@@ -25,8 +25,11 @@ import java.sql.Time;
 import java.time.LocalTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
+import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
 
 public class SmokeTest {
+
 
   public static void main(String[] args) {
     String projectId = "google.com:cloud-bigtable-dev"; // my-gcp-project-id
@@ -40,6 +43,14 @@ public class SmokeTest {
   }
 
   public static void quickstart(String projectId, String instanceId, String tableId) {
+    try {
+      StackdriverTraceExporter.createAndRegister(
+          StackdriverTraceConfiguration.builder()
+              .setProjectId("YOUR_PROJECT_ID")
+              .build());
+    } catch(Exception exception) {
+      System.err.println("failed to setup tracing.");
+    }
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
 
