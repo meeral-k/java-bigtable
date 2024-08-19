@@ -28,6 +28,7 @@ public class SmokeTest {
     String instanceId = "mk-test-1"; // my-bigtable-instance-id
     String tableId = "mk-table-1"; // my-bigtable-table-id
 
+    System.out.println("System property directpath-data-endpoint: " + System.getProperty("bigtable.directpath-data-endpoint"));
     quickstart(projectId, instanceId, tableId);
   }
 
