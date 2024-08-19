@@ -562,14 +562,6 @@
                   <key>bigtable.connection-mode</key>
                   <value>REQUIRE_DIRECT_PATH</value>
                 </systemProperty>
-                <systemProperty>
-                  <key></key>
-                  <value></value>
-                </systemProperty>
-                <systemProperty>
-                  <key></key>
-                  <value></value>
-                </systemProperty>
               </systemProperties>
               <environmentVariables>
                 <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>
