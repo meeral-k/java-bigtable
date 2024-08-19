@@ -52,9 +52,10 @@ public class SmokeTest {
     } catch(Exception exception) {
       System.err.println("failed to setup tracing.");
     }
+
     BigtableDataSettings.Builder settings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
-    settings.stubSettings().setEndpoint(System.getProperty("bigtable.directpath-data-endpoint"));
+    settings.stubSettings().setEndpoint("test-bigtable.sandbox.googleapis.com:443");
 
 
     // Initialize client that will be used to send requests. This client only needs to be created
