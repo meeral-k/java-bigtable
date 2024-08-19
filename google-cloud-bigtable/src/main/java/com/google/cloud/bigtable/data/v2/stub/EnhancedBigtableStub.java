@@ -396,10 +396,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         .put("grpc", GaxGrpcProperties.getGrpcVersion())
         .put("gapic", Version.VERSION);
 
-    if(transportProvider != null) {
-      attributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED, TagValue.create(String.valueOf(transportProvider.canUseDirectPath())));
-      spanAttributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED.getName(), String.valueOf(transportProvider.canUseDirectPath()));
-    }
+   // if(transportProvider != null) {
+    //  attributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED, TagValue.create(String.valueOf(transportProvider.canUseDirectPath())));
+     // spanAttributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED.getName(), String.valueOf(transportProvider.canUseDirectPath()));
+    //}
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
         .add(
