@@ -28,7 +28,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
 import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
-
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.samplers.Samplers;
 public class SmokeTest {
 
 
@@ -49,6 +50,13 @@ public class SmokeTest {
           StackdriverTraceConfiguration.builder()
               .setProjectId(projectId)
               .build());
+
+
+      Tracing.getTraceConfig().updateActiveTraceParams(
+          Tracing.getTraceConfig().getActiveTraceParams().toBuilder()
+              .setSampler(Samplers.probabilitySampler(1))
+              .build()
+      );
     } catch(Exception exception) {
       System.err.println("failed to setup tracing.");
     }
