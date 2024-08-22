@@ -52,6 +52,4 @@ public class VerboseIntercptor  implements ClientInterceptor {
       }
     };
   }
-};
-  }
 }
