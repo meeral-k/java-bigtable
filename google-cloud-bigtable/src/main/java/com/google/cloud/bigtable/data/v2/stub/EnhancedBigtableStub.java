@@ -318,6 +318,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             }
 
             managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
+            managedChannelBuilder.intercept(new VerboseIntercptor());
 
             if (oldChannelConfigurator != null) {
               managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
