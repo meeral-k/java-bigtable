@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable;
 
+import static java.lang.Thread.sleep;
+
 import com.google.cloud.bigtable.data.v2.*;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -71,6 +73,7 @@ public class SmokeTest {
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
       while (true) {
+        sleep(100);
         String rowKey = UUID.randomUUID().toString();
         String familyId = "cf";
 
