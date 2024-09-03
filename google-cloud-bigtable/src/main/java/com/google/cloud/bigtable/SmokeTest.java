@@ -17,22 +17,27 @@ package com.google.cloud.bigtable;
 
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.data.v2.*;
+import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.protobuf.ByteString;
 import java.sql.Time;
 import java.time.LocalTime;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
 import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.samplers.Samplers;
+import java.util.logging.Logger;
+
 public class SmokeTest {
 
-
+  private static final Logger logger = Logger.getLogger(SmokeTest.class.getName());
   public static void main(String[] args) {
     String projectId = "google.com:cloud-bigtable-dev"; // my-gcp-project-id
     String instanceId = System.getProperty("bigtable.instance"); // my-bigtable-instance-id
@@ -70,7 +75,36 @@ public class SmokeTest {
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
-      while(true) {
+      String rowKey = UUID.randomUUID().toString();
+      String familyId = "cf";
+
+      byte[] largeValueBytes = new byte[400 * 1024 * 1024];
+      Random random = new Random();
+      random.nextBytes(largeValueBytes);
+      ByteString largeValue = ByteString.copyFrom(largeValueBytes);
+
+      // Create a 200 MB row
+      logger.info("Sending large row, this will take awhile");
+      for (int i = 0; i < 2; i++) {
+        dataClient
+            .mutateRowAsync(
+                RowMutation.create(tableId, rowKey)
+                    .setCell(familyId, ByteString.copyFromUtf8("q" + i), largeValue))
+            .get(10, TimeUnit.MINUTES);
+      }
+
+      logger.info("Reading large row, this will take awhile");
+      // Read it back
+      Row row =
+          dataClient
+              .readRowsCallable()
+              .first()
+              .call(Query.create(tableId).rowKey(rowKey));
+
+      assert row.getCells().size() == 2;
+      assert row.getCells().get(0).getValue() ==largeValue;
+      assert row.getCells().get(1).getValue() == largeValue;
+/*      //while(true) {
         String rowKey = String.valueOf(UUID.randomUUID());
         RowMutation rowMutation = RowMutation.create(tableId, rowKey)
             .setCell("cf", "q", "myVal")
@@ -90,9 +124,9 @@ public class SmokeTest {
         }
       }
       } catch (NotFoundException e) {
-        System.err.println("Failed to read from a non-existent table: " + e.getMessage());
+        System.err.println("Failed to read from a non-existent table: " + e.getMessage());*/
       } catch (Exception e) {
         System.out.println("Error during quickstart: \n" + e.toString());
       }
-      }
-}
+     // }
+}}
