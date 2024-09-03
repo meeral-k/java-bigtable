@@ -75,35 +75,36 @@ public class SmokeTest {
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
-      String rowKey = UUID.randomUUID().toString();
-      String familyId = "cf";
+      while (true) {
+        String rowKey = UUID.randomUUID().toString();
+        String familyId = "cf";
 
-      byte[] largeValueBytes = new byte[100 * 1024 * 1024];
-      Random random = new Random();
-      random.nextBytes(largeValueBytes);
-      ByteString largeValue = ByteString.copyFrom(largeValueBytes);
+        byte[] largeValueBytes = new byte[100 * 1024 * 1024];
+        Random random = new Random();
+        random.nextBytes(largeValueBytes);
+        ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
-      // Create a 200 MB row
-      logger.info("Sending large row, this will take awhile");
-      for (int i = 0; i < 2; i++) {
-        dataClient
-            .mutateRowAsync(
-                RowMutation.create(tableId, rowKey)
-                    .setCell(familyId, ByteString.copyFromUtf8("q" + i), largeValue))
-            .get(10, TimeUnit.MINUTES);
-      }
-
-      logger.info("Reading large row, this will take awhile");
-      // Read it back
-      Row row =
+        // Create a 200 MB row
+        logger.info("Sending large row, this will take awhile");
+        for (int i = 0; i < 2; i++) {
           dataClient
-              .readRowsCallable()
-              .first()
-              .call(Query.create(tableId).rowKey(rowKey));
+              .mutateRowAsync(
+                  RowMutation.create(tableId, rowKey)
+                      .setCell(familyId, ByteString.copyFromUtf8("q" + i), largeValue))
+              .get(10, TimeUnit.MINUTES);
+        }
 
-      assert row.getCells().size() == 2;
-      assert row.getCells().get(0).getValue() ==largeValue;
-      assert row.getCells().get(1).getValue() == largeValue;
+        logger.info("Reading large row, this will take awhile");
+        // Read it back
+        Row row =
+            dataClient
+                .readRowsCallable()
+                .first()
+                .call(Query.create(tableId).rowKey(rowKey));
+
+        assert row.getCells().size() == 2;
+        assert row.getCells().get(0).getValue() == largeValue;
+        assert row.getCells().get(1).getValue() == largeValue;
 /*      //while(true) {
         String rowKey = String.valueOf(UUID.randomUUID());
         RowMutation rowMutation = RowMutation.create(tableId, rowKey)
@@ -125,8 +126,9 @@ public class SmokeTest {
       }
       } catch (NotFoundException e) {
         System.err.println("Failed to read from a non-existent table: " + e.getMessage());*/
-      } catch (Exception e) {
+      }} catch(Exception e){
         System.out.println("Error during quickstart: \n" + e.toString());
       }
+
      // }
 }}
