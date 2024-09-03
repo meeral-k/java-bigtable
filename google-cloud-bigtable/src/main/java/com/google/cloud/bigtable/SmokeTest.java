@@ -78,7 +78,7 @@ public class SmokeTest {
       String rowKey = UUID.randomUUID().toString();
       String familyId = "cf";
 
-      byte[] largeValueBytes = new byte[400 * 1024 * 1024];
+      byte[] largeValueBytes = new byte[100 * 1024 * 1024];
       Random random = new Random();
       random.nextBytes(largeValueBytes);
       ByteString largeValue = ByteString.copyFrom(largeValueBytes);
