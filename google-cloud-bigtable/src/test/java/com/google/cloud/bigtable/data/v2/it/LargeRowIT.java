@@ -42,7 +42,7 @@ public class LargeRowIT {
     String rowKey = UUID.randomUUID().toString();
     String familyId = testEnvRule.env().getFamilyId();
 
-    byte[] largeValueBytes = new byte[100 * 1024 * 1024];
+    byte[] largeValueBytes = new byte[300 * 1024 * 1024];
     Random random = new Random();
     random.nextBytes(largeValueBytes);
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
