@@ -24,14 +24,13 @@ import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-public class VerboseIntercptor  implements ClientInterceptor {
+public class VerboseIntercptor implements ClientInterceptor {
 
   @Override
-  public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
-      CallOptions callOptions, Channel next) {
+  public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+      MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
     final ClientCall<ReqT, RespT> clientCall = next.newCall(method, callOptions);
 
     return new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
@@ -44,8 +43,19 @@ public class VerboseIntercptor  implements ClientInterceptor {
                 // Check peer IP after connection is established.
                 SocketAddress remoteAddr =
                     clientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-                System.out.println(String.format("Connected to %s for %s", remoteAddr.toString(), method.getFullMethodName()));
-                clientCall.getAttributes().keys().forEach(key -> System.out.println(String.format("Client attribute key %s : value %s",key, clientCall.getAttributes().get(key).toString())));
+                System.out.println(
+                    String.format(
+                        "Connected to %s for %s",
+                        remoteAddr.toString(), method.getFullMethodName()));
+                clientCall
+                    .getAttributes()
+                    .keys()
+                    .forEach(
+                        key ->
+                            System.out.println(
+                                String.format(
+                                    "Client attribute key %s : value %s",
+                                    key, clientCall.getAttributes().get(key).toString())));
                 super.onHeaders(headers);
               }
             },

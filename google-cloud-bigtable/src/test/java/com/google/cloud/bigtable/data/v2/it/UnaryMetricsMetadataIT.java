@@ -82,14 +82,15 @@ public class UnaryMetricsMetadataIT {
     settings.setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry));
 
     client = BigtableDataClient.create(settings.build());
-    InstantiatingGrpcChannelProvider provider = ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider());
-    if(!provider.canUseDirectPath()) {
+    InstantiatingGrpcChannelProvider provider =
+        ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider());
+    if (!provider.canUseDirectPath()) {
       System.out.println("Somehow we aren't using directpath");
     }
     if (provider.canUseDirectPath()) {
       System.out.println("directpath is enabled");
     }
-    if (provider.isDirectPathXdsEnabled()){
+    if (provider.isDirectPathXdsEnabled()) {
       System.out.println("Directpath Xds is Enabled");
     }
   }
@@ -143,8 +144,10 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
-        Collectors.toList());
+    List<String> directpathAttribute =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY))
+            .collect(Collectors.toList());
 
     assertThat(pointData)
         .comparingElementsUsing(POINT_DATA_CLUSTER_ID_CONTAINS)
@@ -154,7 +157,9 @@ public class UnaryMetricsMetadataIT {
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
-    System.out.println("Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> String.join(s, s2, " ")));
+    System.out.println(
+        "Directpath attribute is: "
+            + directpathAttribute.stream().reduce((s, s2) -> String.join(s, s2, " ")));
 
     assertThat(directpathAttribute).isNotEmpty();
   }
@@ -207,8 +212,10 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
-        Collectors.toList());
+    List<String> directpathAttribute =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY))
+            .collect(Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
@@ -216,7 +223,8 @@ public class UnaryMetricsMetadataIT {
 
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
-    System.out.println("Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> s + s2 + " "));
+    System.out.println(
+        "Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> s + s2 + " "));
     assertThat(directpathAttribute).isNotEmpty();
   }
 }
