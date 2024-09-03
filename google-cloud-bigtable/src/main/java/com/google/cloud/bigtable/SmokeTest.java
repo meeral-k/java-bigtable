@@ -123,6 +123,7 @@ public class SmokeTest {
         dataClient.close();
       }
     } catch (Exception e) {
+      System.out.print(e);
       System.out.println("Error during quickstart: \n" + e.toString());
     }
 
