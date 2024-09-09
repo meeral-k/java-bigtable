@@ -233,10 +233,18 @@ class CloudEnv extends AbstractTestEnv {
                 new SimpleForwardingClientCallListener<RespT>(responseListener) {
                   @Override
                   public void onHeaders(Metadata headers) {
+
                     // Check peer IP after connection is established.
                     SocketAddress remoteAddr =
                         clientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                    System.out.println(
+                        String.format(
+                            "Connected to %s for %s",
+                            remoteAddr.toString(), method.getFullMethodName()));
 
+                    System.out.println(
+                        String.format(
+                            "Method Service Name is",method.getServiceName()));
                     if (!predicate.apply((InetSocketAddress) remoteAddr)) {
                       throw new RuntimeException(
                           String.format(
