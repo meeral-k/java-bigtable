@@ -183,6 +183,7 @@ class CloudEnv extends AbstractTestEnv {
                 "DirectPath IPv4 or IPv6",
                 Predicates.or(DIRECT_PATH_IPV4_MATCHER, DIRECT_PATH_IPV6_MATCHER));
         channelProvider
+            .setKeepAliveWithoutCalls(true)
             .setKeepAliveTime(Duration.ofSeconds(1)) // sends ping in this interval
             .setKeepAliveTimeout(
                 Duration.ofSeconds(10)); // wait this long before considering the connection dead
@@ -191,6 +192,7 @@ class CloudEnv extends AbstractTestEnv {
         interceptor =
             buildRemoteAddrInterceptor("DirectPath IPv4", Predicates.or(DIRECT_PATH_IPV4_MATCHER));
         channelProvider
+            .setKeepAliveWithoutCalls(true)
             .setKeepAliveTime(Duration.ofSeconds(1)) // sends ping in this interval
             .setKeepAliveTimeout(
                 Duration.ofSeconds(10)); // wait this long before considering the connection dead
