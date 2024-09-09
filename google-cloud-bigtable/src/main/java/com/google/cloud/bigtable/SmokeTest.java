@@ -120,7 +120,6 @@ public class SmokeTest {
         }
         } catch (NotFoundException e) {
           System.err.println("Failed to read from a non-existent table: " + e.getMessage());*/
-        dataClient.close();
       }
     } catch (Exception e) {
       System.out.print(e);
